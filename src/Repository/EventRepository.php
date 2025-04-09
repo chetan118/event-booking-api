@@ -16,28 +16,61 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    //    /**
-    //     * @return Event[] Returns an array of Event objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findFiltered(
+        ?string $location = null,
+        ?\DateTimeInterface $from = null,
+        ?\DateTimeInterface $to = null,
+        int $page = 1,
+        int $limit = 10
+    ): array {
+        $qb = $this->createQueryBuilder('e');
 
-    //    public function findOneBySomeField($value): ?Event
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($location) {
+            $qb->andWhere('e.location = :location')
+               ->setParameter('location', $location);
+        }
+
+        if ($from) {
+            $qb->andWhere('e.startTime >= :from')
+               ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb->andWhere('e.endTime <= :to')
+               ->setParameter('to', $to);
+        }
+
+        return $qb
+            ->orderBy('e.startTime', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countFiltered(
+        ?string $location = null,
+        ?\DateTimeInterface $from = null,
+        ?\DateTimeInterface $to = null
+    ): int {
+        $qb = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)');
+
+        if ($location) {
+            $qb->andWhere('e.location = :location')
+               ->setParameter('location', $location);
+        }
+
+        if ($from) {
+            $qb->andWhere('e.startTime >= :from')
+               ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb->andWhere('e.endTime <= :to')
+               ->setParameter('to', $to);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 }
