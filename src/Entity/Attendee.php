@@ -36,8 +36,17 @@ class Attendee
     #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'attendee')]
     private Collection $bookings;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $country
+    ) {
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->email = $email;
+        $this->country = $country;
+        $this->createdAt = new \DateTimeImmutable();
         $this->bookings = new ArrayCollection();
     }
 

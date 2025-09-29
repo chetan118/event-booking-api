@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[Route('/api/events')]
 class EventController extends AbstractController
 {
     public function __construct(
@@ -21,7 +22,7 @@ class EventController extends AbstractController
         private ValidatorInterface $validator
     ) {}
 
-    #[Route('/events', name: 'index', methods: ['GET'])]
+    #[Route('', name: 'index', methods: ['GET'])]
     public function index(Request $request): JsonResponse
     {
         $location = $request->query->get('location');
@@ -44,7 +45,7 @@ class EventController extends AbstractController
         return $this->json($result, 200, [], ['groups' => ['event:read']]);
     }
 
-    #[Route('/events', name: 'event_create', methods: ['POST'])]
+    #[Route('', name: 'event_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $dto = $this->serializer->deserialize($request->getContent(), CreateEventDto::class, 'json');
@@ -59,7 +60,7 @@ class EventController extends AbstractController
         return $this->json($event, Response::HTTP_CREATED, [], ['groups' => 'event:read']);
     }
 
-    #[Route('/events/{id}', name: 'event_update', methods: ['PUT'])]
+    #[Route('/{id}', name: 'event_update', methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse
     {
         $dto = $this->serializer->deserialize($request->getContent(), UpdateEventDto::class, 'json');
@@ -74,7 +75,7 @@ class EventController extends AbstractController
         return $this->json($event, Response::HTTP_OK, [], ['groups' => 'event:read']);
     }
 
-    #[Route('/events/{id}', name: 'event_delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'event_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $this->eventService->deleteEvent($id);
